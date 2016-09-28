@@ -43,10 +43,10 @@ describe('userProfile', function () {
     context('common', function () {
       beforeEach(function (done) {
         info = {
-          first_name: "Harland",
-          last_name: "Stonecipher",
+          first_name: 'Harland',
+          last_name: 'Stonecipher',
           membership_number: 01234567890,
-          email_address: "jon@example.com",
+          email_address: 'jon@example.com',
         };
 
         sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
@@ -87,10 +87,10 @@ describe('userProfile', function () {
     context('membership', function () {
       beforeEach(function (done) {
         info = {
-          first_name: "Harland",
-          last_name: "Stonecipher",
+          first_name: 'Harland',
+          last_name: 'Stonecipher',
           membership_number: 01234567890,
-          email_address: "harland@example.com",
+          email_address: 'harland@example.com',
         };
 
         token = [ 'algo', (new Buffer(JSON.stringify({ account_id: info.membership_number, }))).toString('base64'), 'sig' ].join('.');
@@ -125,9 +125,9 @@ describe('userProfile', function () {
       beforeEach(function (done) {
         info = {
           id: 123456789,
-          first_name: "Harland",
-          last_name: "Stonecipher",
-          email: "harland@example.com",
+          first_name: 'Harland',
+          last_name: 'Stonecipher',
+          email: 'harland@example.com',
         };
 
         token = [ 'algo', (new Buffer(JSON.stringify({ account_id: info.id, }))).toString('base64'), 'sig' ].join('.');
@@ -162,8 +162,8 @@ describe('userProfile', function () {
       beforeEach(function (done) {
         info = {
           id: 123456789,
-          first_name: "Harland",
-          last_name: "Stonecipher"
+          first_name: 'Harland',
+          last_name: 'Stonecipher'
         };
 
         token = [ 'algo', (new Buffer(JSON.stringify({ account_id: info.id, }))).toString('base64'), 'sig' ].join('.');
@@ -190,4 +190,3 @@ describe('userProfile', function () {
     });
   });
 });
-
