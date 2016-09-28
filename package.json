@@ -1,0 +1,29 @@
+{
+  "name": "passport-legalshield",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./lib/passport-legalshield-oauth2",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha ./test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LegalShield/passport-legalshield.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LegalShield/passport-legalshield/issues"
+  },
+  "homepage": "https://github.com/LegalShield/passport-legalshield#readme",
+  "dependencies": {
+    "passport-oauth": "^1.0.0",
+    "pkginfo": "^0.4.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.1.0",
+    "nock": "^8.0.0",
+    "sinon": "^1.17.6"
+  }
+}
