@@ -187,6 +187,10 @@ describe('userProfile', function () {
         expect(profile.name.middleName).to.eql('');
         expect(profile.name.familyName).to.eql('Stonecipher');
       });
+
+      it('does not set the email', function () {
+        expect(profile.emails).to.not.exist;
+      });
     });
   });
 });
