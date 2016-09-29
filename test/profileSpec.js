@@ -1,4 +1,4 @@
-var LegalSheild = require('../'),
+var LegalShield = require('../'),
     expect = require('chai').expect,
     sinon = require('sinon');
 
@@ -6,7 +6,7 @@ describe('userProfile', function () {
   var strategy, options, verify, info, profile, err, token;
 
   beforeEach(function () {
-    strategy = new LegalSheild.Strategy({ userType: 'membership', clientID: 'my-client-id', clientSecret: 'my-client-secret' }, function () {});
+    strategy = new LegalShield.Strategy({ userType: 'membership', clientID: 'my-client-id', clientSecret: 'my-client-secret' }, function () {});
   });
 
   describe('failure', function () {

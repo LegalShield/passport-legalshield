@@ -1,1 +1,1 @@
-module.exports = require('./lib/passport-legalsheild-oauth2');
+module.exports = require('./lib/passport-legalshield-oauth2');

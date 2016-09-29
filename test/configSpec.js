@@ -1,8 +1,8 @@
-var LegalSheild = require('../'),
+var LegalShield = require('../'),
     expect = require('chai').expect;
 
 it('exports the Strategy', function () {
-  expect(LegalSheild.Strategy).to.exist;
+  expect(LegalShield.Strategy).to.exist;
 });
 
 describe('config', function () {
@@ -14,7 +14,7 @@ describe('config', function () {
       clientSecret: 'my-client-secret'
     };
     verify = function () {};
-    strategy = new LegalSheild.Strategy(options, verify);
+    strategy = new LegalShield.Strategy(options, verify);
   });
 
   describe('name', function () {
@@ -24,7 +24,7 @@ describe('config', function () {
 
     it('can be overwritten', function () {
       options.name = 'auth';
-      strategy = new LegalSheild.Strategy(options, verify);
+      strategy = new LegalShield.Strategy(options, verify);
       expect(strategy.name).to.eql('auth');
     });
   });
@@ -36,7 +36,7 @@ describe('config', function () {
 
     it('can be overwritten', function () {
       options.baseURL = 'base';
-      strategy = new LegalSheild.Strategy(options, verify);
+      strategy = new LegalShield.Strategy(options, verify);
       expect(strategy._baseURL).to.eql('base');
     });
   });
