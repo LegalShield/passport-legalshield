@@ -1,7 +1,6 @@
 var LegalSheild = require('../'),
     expect = require('chai').expect,
-    sinon = require('sinon'),
-    nock = require('nock');
+    sinon = require('sinon');
 
 describe('userProfile', function () {
   var strategy, options, verify, info, profile, err, token;
@@ -11,12 +10,23 @@ describe('userProfile', function () {
   });
 
   describe('failure', function () {
-    it('passes the error through', function (done) {
+    beforeEach(function () {
+      token = [
+        'algo',
+        (new Buffer(JSON.stringify({
+          account_id: 1234,
+          account_type: 'Member'
+        }))).toString('base64'),
+        'sig'
+      ].join('.');
+    });
+
+    it('passes oauth2 errors through', function (done) {
       sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
         cb(new Error('oops'));
       });
 
-      strategy.userProfile('token', function (err, profile) {
+      strategy.userProfile(token, function (err, profile) {
         expect(err).to.exist;
         expect(err.message).to.eql('failed to fetch user profile');
         expect(err.oauthError).to.exist;
@@ -25,15 +35,47 @@ describe('userProfile', function () {
       });
     });
 
-    it('catches errors and passes them through', function (done) {
+    it('passes an error when the jwt has an unknown token type', function (done) {
+      token = [
+        'algo',
+        (new Buffer(JSON.stringify({
+          account_id: 1234,
+          account_type: 'Unknown'
+        }))).toString('base64'),
+        'sig'
+      ].join('.');
+
+      strategy.userProfile(token, function (err, profile) {
+        expect(err).to.exist;
+        expect(err.message).to.eql("Unknown token type 'Unknown' was found. Please use a supported type: Admin, Associate, Member");
+        done();
+      });
+    });
+
+    it('catches errors when parsing the profile response', function (done) {
       sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
         cb(null, "This isn't JSON");
       });
 
-      token = [ 'algo', (new Buffer(JSON.stringify({ }))).toString('base64'), 'sig' ].join('.');
       strategy.userProfile(token, function (err, profile) {
         expect(err).to.exist;
-        expect(err.message).to.eql('Unexpected token T in JSON at position 0');
+        expect(err.message).to.eql('Error building the Profile');
+        expect(err.orignal_error).to.exist;
+        expect(err.orignal_error.message).to.eql('Unexpected token T in JSON at position 0');
+        done();
+      });
+    });
+
+    it('catches errors when parsing the jwt fails', function (done) {
+      sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
+        cb(null, "This isn't JSON");
+      });
+
+      strategy.userProfile('not a token', function (err, profile) {
+        expect(err).to.exist;
+        expect(err.message).to.eql('Error parsing the JWT');
+        expect(err.orignal_error).to.exist;
+        expect(err.orignal_error.message).to.eql('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.');
         done();
       });
     });
@@ -53,18 +95,20 @@ describe('userProfile', function () {
           cb(null, JSON.stringify([ info ]));
         });
 
-        token = [ 'algo', (new Buffer(JSON.stringify({ account_id: info.membership_number }))).toString('base64'), 'sig' ].join('.');
+        token = [
+          'algo',
+          (new Buffer(JSON.stringify({
+            account_id: info.membership_number,
+            account_type: 'Member'
+          }))).toString('base64'),
+          'sig'
+        ].join('.');
+
         strategy.userProfile(token, function (_err, _profile) {
           err     = _err;
           profile = _profile
           done();
         });
-      });
-
-      it('makes the call to the profileURL', function () {
-        expect(strategy._oauth2.get.getCall(0).args[0]).to.eql(strategy._profileURL);
-        expect(strategy._oauth2.get.getCall(0).args[1]).to.eql(token);
-        expect(strategy._oauth2.get.getCall(0).args[2]).to.be.a('function');
       });
 
       it('sets the provider', function () {
@@ -73,6 +117,10 @@ describe('userProfile', function () {
 
       it('sets the id', function () {
         expect(profile.id).to.eql(01234567890);
+      });
+
+      it('sets the account_type', function () {
+        expect(profile.account_type).to.eql('Member');
       });
 
       it('sets _json', function () {
@@ -93,7 +141,15 @@ describe('userProfile', function () {
           email_address: 'harland@example.com',
         };
 
-        token = [ 'algo', (new Buffer(JSON.stringify({ account_id: info.membership_number, }))).toString('base64'), 'sig' ].join('.');
+        token = [
+          'algo',
+          (new Buffer(JSON.stringify({
+            account_id: info.membership_number,
+            account_type: 'Member'
+          }))).toString('base64'),
+          'sig'
+        ].join('.');
+
         sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
           cb(null, JSON.stringify([ info ]));
         });
@@ -103,6 +159,12 @@ describe('userProfile', function () {
           profile = _profile
           done();
         });
+      });
+
+      it('makes the call to the profileURL', function () {
+        expect(strategy._oauth2.get.getCall(0).args[0]).to.eql('https://api.legalshield.com/v2/my/memberships');
+        expect(strategy._oauth2.get.getCall(0).args[1]).to.eql(token);
+        expect(strategy._oauth2.get.getCall(0).args[2]).to.be.a('function');
       });
 
       it('sets the displayName', function () {
@@ -130,7 +192,15 @@ describe('userProfile', function () {
           email: 'harland@example.com',
         };
 
-        token = [ 'algo', (new Buffer(JSON.stringify({ account_id: info.id, }))).toString('base64'), 'sig' ].join('.');
+        token = [
+          'algo',
+          (new Buffer(JSON.stringify({
+            account_id: info.id,
+            account_type: 'Associate'
+          }))).toString('base64'),
+          'sig'
+        ].join('.');
+
         sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
           cb(null, JSON.stringify(info));
         });
@@ -140,6 +210,12 @@ describe('userProfile', function () {
           profile = _profile
           done();
         });
+      });
+
+      it('makes the call to the profileURL', function () {
+        expect(strategy._oauth2.get.getCall(0).args[0]).to.eql('https://api.legalshield.com/v2/my/associate');
+        expect(strategy._oauth2.get.getCall(0).args[1]).to.eql(token);
+        expect(strategy._oauth2.get.getCall(0).args[2]).to.be.a('function');
       });
 
       it('sets the displayName', function () {
@@ -166,7 +242,15 @@ describe('userProfile', function () {
           last_name: 'Stonecipher'
         };
 
-        token = [ 'algo', (new Buffer(JSON.stringify({ account_id: info.id, }))).toString('base64'), 'sig' ].join('.');
+        token = [
+          'algo',
+          (new Buffer(JSON.stringify({
+            account_id: info.id,
+            account_type: 'Admin'
+          }))).toString('base64'),
+          'sig'
+        ].join('.');
+
         sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
           cb(null, JSON.stringify(info));
         });
@@ -176,6 +260,12 @@ describe('userProfile', function () {
           profile = _profile
           done();
         });
+      });
+
+      it('makes the call to the profileURL', function () {
+        expect(strategy._oauth2.get.getCall(0).args[0]).to.eql('https://api.legalshield.com/v2/admin/me');
+        expect(strategy._oauth2.get.getCall(0).args[1]).to.eql(token);
+        expect(strategy._oauth2.get.getCall(0).args[2]).to.be.a('function');
       });
 
       it('sets the displayName', function () {

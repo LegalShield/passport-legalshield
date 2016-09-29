@@ -1,14 +1,12 @@
 var LegalSheild = require('../'),
     expect = require('chai').expect,
-    sinon = require('sinon'),
-    nock = require('nock');
+    sinon = require('sinon');
 
 describe('oauth2 config', function () {
   var strategy, options, verify;
 
   beforeEach(function () {
     options = {
-      userType: 'admin',
       clientID: 'my-client-id',
       clientSecret: 'my-client-secret'
     };
