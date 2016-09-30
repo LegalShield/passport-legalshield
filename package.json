@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/LegalShield/passport-legalshield.git"
   },
+  "engines": {
+    "node" : "6.6.0"
+  },
   "author": "",
   "license": "ISC",
   "bugs": {
