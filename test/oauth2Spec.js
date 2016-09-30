@@ -26,6 +26,10 @@ describe('oauth2 config', function () {
     expect(strategy._oauth2._clientSecret).to.eql('my-client-secret');
   });
 
+  it('configures OAuth2 to use the token as a header param', function () {
+    expect(strategy._oauth2._useAuthorizationHeaderForGET).to.be.true;
+  });
+
   describe('authorizationURL', function () {
     it('is defaulted correctly', function () {
       expect(strategy._oauth2._authorizeUrl).to.eql('https://api.legalshield.com/auth/authorize');
