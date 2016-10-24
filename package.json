@@ -1,6 +1,6 @@
 {
   "name": "passport-legalshield",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Passport strategy to authenticate against Legalshield's OAuth2 implementation",
   "main": "./lib/passport-legalshield-oauth2",
   "scripts": {
