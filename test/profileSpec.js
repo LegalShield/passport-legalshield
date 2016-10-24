@@ -5,20 +5,17 @@ var LegalShield = require('../'),
 describe('userProfile', function () {
   var strategy, options, verify, info, profile, err, token;
 
+  var buildToken = function (payload) {
+    return [ 'algo', (new Buffer(JSON.stringify(payload))).toString('base64'), 'sig' ].join('.');
+  };
+
   beforeEach(function () {
-    strategy = new LegalShield.Strategy({ userType: 'membership', clientID: 'my-client-id', clientSecret: 'my-client-secret' }, function () {});
+    strategy = new LegalShield.Strategy({ clientID: 'my-client-id', clientSecret: 'my-client-secret' }, function () {});
   });
 
   describe('failure', function () {
     beforeEach(function () {
-      token = [
-        'algo',
-        (new Buffer(JSON.stringify({
-          account_id: 1234,
-          account_type: 'Member'
-        }))).toString('base64'),
-        'sig'
-      ].join('.');
+      token = buildToken({ account_id: 1234, account_type: 'Member' });
     });
 
     it('passes oauth2 errors through', function (done) {
@@ -36,14 +33,7 @@ describe('userProfile', function () {
     });
 
     it('passes an error when the jwt has an unknown token type', function (done) {
-      token = [
-        'algo',
-        (new Buffer(JSON.stringify({
-          account_id: 1234,
-          account_type: 'Unknown'
-        }))).toString('base64'),
-        'sig'
-      ].join('.');
+      token = buildToken({ account_id: 1234, account_type: 'Unknown' });
 
       strategy.userProfile(token, function (err, profile) {
         expect(err).to.exist;
@@ -95,14 +85,7 @@ describe('userProfile', function () {
           cb(null, JSON.stringify([ info ]));
         });
 
-        token = [
-          'algo',
-          (new Buffer(JSON.stringify({
-            account_id: info.membership_number,
-            account_type: 'Member'
-          }))).toString('base64'),
-          'sig'
-        ].join('.');
+        token = buildToken({ account_id: info.membership_number, account_type: 'Member' });
 
         strategy.userProfile(token, function (_err, _profile) {
           err     = _err;
@@ -141,17 +124,10 @@ describe('userProfile', function () {
           email_address: 'harland@example.com',
         };
 
-        token = [
-          'algo',
-          (new Buffer(JSON.stringify({
-            account_id: info.membership_number,
-            account_type: 'Member'
-          }))).toString('base64'),
-          'sig'
-        ].join('.');
+        token = buildToken({ account_id: info.membership_number, account_type: 'Member' });
 
         sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
-          cb(null, JSON.stringify([ info ]));
+          cb(null, JSON.stringify(info));
         });
 
         strategy.userProfile(token, function (_err, _profile) {
@@ -162,7 +138,7 @@ describe('userProfile', function () {
       });
 
       it('makes the call to the profileURL', function () {
-        expect(strategy._oauth2.get.getCall(0).args[0]).to.eql('https://api.legalshield.com/v2/my/memberships');
+        expect(strategy._oauth2.get.getCall(0).args[0]).to.eql('https://api.legalshield.com/v2/my/membership');
         expect(strategy._oauth2.get.getCall(0).args[1]).to.eql(token);
         expect(strategy._oauth2.get.getCall(0).args[2]).to.be.a('function');
       });
@@ -192,14 +168,7 @@ describe('userProfile', function () {
           email: 'harland@example.com',
         };
 
-        token = [
-          'algo',
-          (new Buffer(JSON.stringify({
-            account_id: info.id,
-            account_type: 'Associate'
-          }))).toString('base64'),
-          'sig'
-        ].join('.');
+        token = buildToken({ account_id: info.id, account_type: 'Associate' });
 
         sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
           cb(null, JSON.stringify(info));
@@ -242,14 +211,7 @@ describe('userProfile', function () {
           last_name: 'Stonecipher'
         };
 
-        token = [
-          'algo',
-          (new Buffer(JSON.stringify({
-            account_id: info.id,
-            account_type: 'Admin'
-          }))).toString('base64'),
-          'sig'
-        ].join('.');
+        token = buildToken({ account_id: info.id, account_type: 'Admin' });
 
         sinon.stub(strategy._oauth2, 'get', function (url, accessToken, cb) {
           cb(null, JSON.stringify(info));
