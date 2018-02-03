@@ -54,9 +54,10 @@ describe('oauth2 config', function () {
     });
 
     it('is based off the baseURL', function () {
-      options.baseURL = 'https://api.staging.legalshield.com';
+      options.baseURL = 'https://api.staging.legalshield.com/';
       strategy = new LegalShield.Strategy(options, verify);
       expect(strategy._oauth2._accessTokenUrl).to.eql('https://api.staging.legalshield.com/auth/token');
+      expect(strategy._oauth2._authorizeUrl).to.eql('https://api.staging.legalshield.com/auth/authorize');
     });
 
     it('can be overwritten', function () {

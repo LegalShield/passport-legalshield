@@ -31,7 +31,7 @@ describe('config', function () {
 
   describe('_baseURL', function () {
     it('defaults correct', function () {
-      expect(strategy._baseURL).to.eql('https://api.legalshield.com');
+      expect(strategy._baseURL).to.eql('https://api.legalshield.com/');
     });
 
     it('can be overwritten', function () {
